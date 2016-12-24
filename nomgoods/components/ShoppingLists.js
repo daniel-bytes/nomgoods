@@ -1,27 +1,33 @@
-import React, { Component } from 'react';
+import React, { Component } from 'react'
+import Swipeout from 'react-native-swipeout'
 import { 
     List,
     ListItem,
-    Text
+    Text,
+    View
 } from 'native-base'
 
-export default class ShoppingList extends Component {
+export default class ShoppingLists extends Component {
     constructor(props) {
         super(props)
     }
 
     render() {
         const callback = this.props.onSelectList;
-
-        const listItems = this.props.lists.map(x => (
-            <ListItem onPress={() => callback(x.key)}>
-                <Text>{x.name}</Text>
-            </ListItem>
-        ));
+        const deleteCallback = this.props.onDeleteList;
 
         return (
-            <List>
-                {listItems}
+            <List dataArray={this.props.lists}
+                  renderRow={(x) =>
+                    <Swipeout backgroundColor="white" right={[{
+                        text: 'Delete',
+                        backgroundColor: 'red',
+                        onPress: () => deleteCallback(x.key)
+                    }]}>
+                        <ListItem onPress={() => callback(x.key)}>
+                            <Text>{x.name}</Text>
+                        </ListItem>
+                    </Swipeout>} >
             </List>
         )
     }

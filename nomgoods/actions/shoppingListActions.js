@@ -6,9 +6,9 @@ export function backButton() {
     }
 }
 
-export function toggleCompleted(listId, itemId) {
+export function toggleItemCompleted(listId, itemId) {
     return {
-        type: types.TOGGLE_COMPLETED,
+        type: types.TOGGLE_ITEM_COMPLETED,
         listId: listId,
         itemId: itemId
     }
@@ -21,30 +21,45 @@ export function selectList(listId) {
     }
 }
 
-export function newList() {
+export function addNewList() {
     return {
-        type: types.NEW_LIST
+        type: types.ADD_NEW_LIST
     }
 }
 
-export function newListSave(name) {
+export function saveNewList(name) {
     return {
-        type: types.NEW_LIST_SAVE,
+        type: types.SAVE_NEW_LIST,
         name: name
     }
 }
 
-export function newItem(listId) {
+export function deleteList(listId) {
     return {
-        type: types.NEW_ITEM,
+        type: types.DELETE_LIST,
         listId: listId
     }
 }
 
-export function newItemSave(listId, name) {
+export function addNewItem(listId) {
     return {
-        type: types.NEW_ITEM_SAVE,
+        type: types.ADD_NEW_ITEM,
+        listId: listId
+    }
+}
+
+export function saveNewItem(listId, name) {
+    return {
+        type: types.SAVE_NEW_ITEM,
         listId: listId,
         name: name
+    }
+}
+
+export function deleteItem(listId, itemId) {
+    return {
+        type: types.DELETE_ITEM,
+        listId: listId,
+        itemId: itemId
     }
 }

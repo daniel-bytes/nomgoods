@@ -17,7 +17,7 @@ export default class NewListForm extends Component {
 
     addList() {
         const others = this.props.lists;
-        const callback = this.props.onNewListSave;
+        const callback = this.props.onSaveNewList;
         const value = this.state.name.trim();
 
         if (!value) {

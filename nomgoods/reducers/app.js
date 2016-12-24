@@ -93,6 +93,19 @@ function handleNewListSave(prevState, action) {
     return results;
 }
 
+function handleDeleteList(prevState, action) {
+    const results = { ...prevState };
+    
+    for (let i = 0; i < results.lists.length; i++) {
+        if (results.lists[i].key === action.listId) {
+            results.lists.splice(i, 1);
+            break;
+        }
+    }
+
+    return results;
+}
+
 function handleNewItem(prevState, action) {
     const results = { ...prevState }
     
@@ -116,6 +129,22 @@ function handleNewItemSave(prevState, action) {
     return results;
 }
 
+function handleDeleteItem(prevState, action) {
+    const results = { ...prevState };
+    const list = results.lists.find(x => x.key === action.listId);
+
+    if (list) {
+        for (let i = 0; i < list.items.length; i++) {
+            if (list.items[i].key === action.itemId) {
+                list.items.splice(i, 1);
+                break;
+            }
+        }
+    }
+
+    return results;
+}
+
 export default function shoppingListApp(state = initialState, action = {}) {
     switch(action.type) {
         case types.BACK_BUTTON:
@@ -124,20 +153,26 @@ export default function shoppingListApp(state = initialState, action = {}) {
         case types.SELECT_LIST:
             return handleSelectList(state, action);
 
-        case types.TOGGLE_COMPLETED:
+        case types.TOGGLE_ITEM_COMPLETED:
             return handleToggleCompleted(state, action);
 
-        case types.NEW_LIST:
+        case types.ADD_NEW_LIST:
             return handleNewList(state, action);
 
-        case types.NEW_LIST_SAVE:
+        case types.SAVE_NEW_LIST:
             return handleNewListSave(state, action);
 
-        case types.NEW_ITEM:
+        case types.DELETE_LIST:
+            return handleDeleteList(state, action);
+
+        case types.ADD_NEW_ITEM:
             return handleNewItem(state, action);
 
-        case types.NEW_ITEM_SAVE:
+        case types.SAVE_NEW_ITEM:
             return handleNewItemSave(state, action);
+
+        case types.DELETE_ITEM:
+            return handleDeleteItem(state, action);
 
         default:
             return state;

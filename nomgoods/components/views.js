@@ -9,7 +9,8 @@ function renderShoppingLists(navigator, lists, callbacks) {
     return (
         <ShoppingLists
             lists={lists}
-            onSelectList={callbacks.onSelectList} />
+            onSelectList={callbacks.onSelectList}
+            onDeleteList={callbacks.onDeleteList} />
     )
 }
 
@@ -17,7 +18,7 @@ function renderAddList(navigator, lists, callbacks) {
     return (
         <NewListForm
             lists={lists}
-            onNewListSave={callbacks.onNewListSave} />
+            onSaveNewList={callbacks.onSaveNewList} />
     )
 }
 
@@ -29,7 +30,8 @@ function renderShoppingList(navigator, lists, callbacks) {
         <ShoppingList 
             listId={listId} 
             items={list.items} 
-            onToggleCompleted={callbacks.onToggleCompleted} />
+            onToggleItemCompleted={callbacks.onToggleItemCompleted}
+            onDeleteItem={callbacks.onDeleteItem} />
     )
 }
 
@@ -41,7 +43,7 @@ function renderAddItem(navigator, lists, callbacks) {
         <NewItemForm 
             listId={listId}
             items={list.items} 
-            onNewItemSave={callbacks.onNewItemSave} />
+            onSaveNewItem={callbacks.onSaveNewItem} />
     )
 }
 

@@ -1,7 +1,9 @@
 export const BACK_BUTTON = 'BACK_BUTTON';
-export const TOGGLE_COMPLETED = 'TOGGLE_COMPLETED';
+export const TOGGLE_ITEM_COMPLETED = 'TOGGLE_ITEM_COMPLETED';
 export const SELECT_LIST = 'SELECT_LIST';
-export const NEW_LIST = 'NEW_LIST';
-export const NEW_LIST_SAVE = 'NEW_LIST_SAVE';
-export const NEW_ITEM = 'NEW_ITEM';
-export const NEW_ITEM_SAVE = 'NEW_ITEM_SAVE';
+export const ADD_NEW_LIST = 'ADD_NEW_LIST';
+export const SAVE_NEW_LIST = 'SAVE_NEW_LIST';
+export const DELETE_LIST = 'DELETE_LIST';
+export const ADD_NEW_ITEM = 'ADD_NEW_ITEM';
+export const SAVE_NEW_ITEM = 'SAVE_NEW_ITEM';
+export const DELETE_ITEM = 'DELETE_ITEM';

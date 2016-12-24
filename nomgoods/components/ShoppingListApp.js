@@ -14,7 +14,12 @@ import * as navStates from '../navigation/states'
 import icon from './icon'
 import theme from '../themes'
 import { renderView } from './views'
-import { renderBackButton, renderAddButton, renderTitle } from './header-nav'
+import { 
+    renderBackButton, 
+    renderMenuButton,
+    renderAddButton, 
+    renderTitle 
+} from './header-nav'
 
 const styles = StyleSheet.create({
     container: {
@@ -34,18 +39,22 @@ export default class App extends Component {
         const navigator = new Navigator(this.props.state.nav);
         const callbacks = {
             onBackButton: this.props.onBackButton,
+            onToggleItemCompleted: this.props.onToggleItemCompleted,
             onSelectList: this.props.onSelectList,
-            onNewList: this.props.onNewList,
-            onNewListSave: this.props.onNewListSave,
-            onNewItem: this.props.onNewItem,
-            onNewItemSave: this.props.onNewItemSave,
-            onToggleCompleted: this.props.onToggleCompleted,
+            onAddNewList: this.props.onAddNewList,
+            onSaveNewList: this.props.onSaveNewList,
+            onDeleteList: this.props.onDeleteList,            
+            onAddNewItem: this.props.onAddNewItem,
+            onSaveNewItem: this.props.onSaveNewItem,
+            onDeleteItem: this.props.onDeleteItem
         }
 
         return (
             <Container theme={theme} style={{ backgroundColor: theme.defaultBackgroundColor }}>
                 <Header>
                     { renderBackButton(navigator, lists, callbacks) }
+
+                    { renderMenuButton(navigator, lists, callbacks) }
 
                     { renderTitle(navigator, lists, callbacks) }
 

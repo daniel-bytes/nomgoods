@@ -5,11 +5,13 @@ import ShoppingListApp from '../components/ShoppingListApp'
 import {
     backButton,
     selectList,
-    toggleCompleted, 
-    newList,
-    newListSave,
-    newItem,
-    newItemSave
+    toggleItemCompleted, 
+    addNewList,
+    saveNewList,
+    deleteList,
+    addNewItem,
+    saveNewItem,
+    deleteItem
 } from '../actions/shoppingListActions'
 
 const mapStateToProps = (state) => {
@@ -28,24 +30,32 @@ const mapDispatchToProps = (dispatch) => {
             dispatch(selectList(listId))
         },
 
-        onToggleCompleted: (listId, itemId) => {
-            dispatch(toggleCompleted(listId, itemId))
+        onToggleItemCompleted: (listId, itemId) => {
+            dispatch(toggleItemCompleted(listId, itemId))
         },
 
-        onNewList: () => {
-            dispatch(newList())
+        onAddNewList: () => {
+            dispatch(addNewList())
         },
 
-        onNewListSave: (name) => {
-            dispatch(newListSave(name))
+        onSaveNewList: (name) => {
+            dispatch(saveNewList(name))
         },
 
-        onNewItem: (listId) => {
-            dispatch(newItem(listId))
+        onDeleteList: (listId) => {
+            dispatch(deleteList(listId))
         },
 
-        onNewItemSave: (listId, name) => {
-            dispatch(newItemSave(listId, name))
+        onAddNewItem: (listId) => {
+            dispatch(addNewItem(listId))
+        },
+
+        onSaveNewItem: (listId, name) => {
+            dispatch(saveNewItem(listId, name))
+        },
+
+        onDeleteItem: (listId, itemId) => {
+            dispatch(deleteItem(listId, itemId))
         }
     }
 }

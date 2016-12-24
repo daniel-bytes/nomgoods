@@ -18,7 +18,7 @@ export default class NewItemForm extends Component {
     addItem() {
         const others = this.props.items;
         const listId = this.props.listId;
-        const callback = this.props.onNewItemSave;
+        const callback = this.props.onSaveNewItem;
         const value = this.state.name.trim();
 
         if (!value) {
@@ -35,8 +35,6 @@ export default class NewItemForm extends Component {
     }
 
     render() {
-        const listId = this.props.listId;
-
         return (
             <View>
                 <InputGroup borderType="underline">
