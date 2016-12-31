@@ -7,10 +7,10 @@ import {
 } from 'native-base'
 
 import icon from './icon'
-import * as navStates from '../navigation/states'
+import * as navStates from '../state/nav-states'
 
-export function renderBackButton(navigator, lists, callbacks) {
-    if (navigator.state() !== navStates.VIEW_LISTS) {
+export function renderBackButton(navigator, state, metadata, callbacks) {
+    if (navigator.allowBackButton()) {
         return (
             <Button transparent onPress={callbacks.onBackButton}>
                 <Icon name={icon('arrow-back')} /> 
@@ -21,10 +21,10 @@ export function renderBackButton(navigator, lists, callbacks) {
     return null;
 }
 
-export function renderMenuButton(navigator, lists, callbacks) {
-    if (navigator.state() === navStates.VIEW_LISTS) {
+export function renderMenuButton(navigator, state, metadata, callbacks) {
+    if (navigator.allowMenuButton()) {
         return (
-            <Button transparent>
+            <Button transparent onPress={callbacks.onShowMenu}>
                 <Icon name='ios-menu' />
             </Button>
         )
@@ -33,12 +33,12 @@ export function renderMenuButton(navigator, lists, callbacks) {
     return null;
 }
 
-export function renderTitle(navigator, lists, callbacks) {
+export function renderTitle(navigator, state, metadata, callbacks) {
     switch (navigator.state()) {
         case navStates.ADD_ITEM:
         case navStates.EDIT_LIST:
         {
-            const list = lists.find(x => x.key === navigator.parameter("listId"));
+            const list = state.lists.find(x => x.key === navigator.parameter("listId"));
             
             return (
                 <Title>{list.name}</Title>
@@ -52,7 +52,7 @@ export function renderTitle(navigator, lists, callbacks) {
     
 }
 
-export function renderAddButton(navigator, lists, callbacks) {
+export function renderAddButton(navigator, state, metadata, callbacks) {
     if (navigator.allowAddButton()) {
         const callback = navigator.state() === navStates.ADD_LIST 
                             ? callbacks.onAddNewList 

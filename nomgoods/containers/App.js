@@ -2,17 +2,7 @@ import React, { Component } from 'react'
 import { bindingActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import ShoppingListApp from '../components/ShoppingListApp'
-import {
-    backButton,
-    selectList,
-    toggleItemCompleted, 
-    addNewList,
-    saveNewList,
-    deleteList,
-    addNewItem,
-    saveNewItem,
-    deleteItem
-} from '../actions/shoppingListActions'
+import actions from '../actions/shoppingListActions'
 
 const mapStateToProps = (state) => {
     return {
@@ -21,43 +11,31 @@ const mapStateToProps = (state) => {
 }
 
 const mapDispatchToProps = (dispatch) => {
-    return {
-        onBackButton: () => {
-            dispatch(backButton())
-        },
-
-        onSelectList: (listId) => {
-            dispatch(selectList(listId))
-        },
-
-        onToggleItemCompleted: (listId, itemId) => {
-            dispatch(toggleItemCompleted(listId, itemId))
-        },
-
-        onAddNewList: () => {
-            dispatch(addNewList())
-        },
-
-        onSaveNewList: (name) => {
-            dispatch(saveNewList(name))
-        },
-
-        onDeleteList: (listId) => {
-            dispatch(deleteList(listId))
-        },
-
-        onAddNewItem: (listId) => {
-            dispatch(addNewItem(listId))
-        },
-
-        onSaveNewItem: (listId, name) => {
-            dispatch(saveNewItem(listId, name))
-        },
-
-        onDeleteItem: (listId, itemId) => {
-            dispatch(deleteItem(listId, itemId))
+    // Create an object that dispatches actions
+    // Given { 
+    //      ToggleFoo: () => { ... }, 
+    //      SaveBar: (param1, param2) => { ... } 
+    //  }
+    // Returns {
+    //      onToggleFoo: () => dispatch(actions.ToggleFoo()),
+    //      onSaveBar: (param1, param2) => dispatch(actions.SaveBar(param1, param2))
+    // }
+    const result = Object.keys(actions).map(key => {
+        return {
+            name: 'on' + key,
+            func: function() {
+                dispatch(
+                    actions[key].apply(result, [...arguments])
+                )
+            }
         }
-    }
+    })
+    .reduce((prev, cur) => {
+        prev[cur.name] = cur.func
+        return prev
+    }, {});
+
+    return result;
 }
 
 const App = connect(

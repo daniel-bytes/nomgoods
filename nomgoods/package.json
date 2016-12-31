@@ -6,14 +6,18 @@
     "ios": "node node_modules/react-native/local-cli/cli.js run-ios",
     "start": "node node_modules/react-native/local-cli/cli.js start",
     "test": "jest",
+
     "configure-xcode": "sudo xcode-select -s /Applications/XCode.app",
-    "react-native-init": "react-native link && react-native link react-native-vector-icons"
+    "fonts-init": "cp -R ./node_modules/react-native-vector-icons/Fonts ./ios/nomgoods.xcodeproj/",
+    "google-signin-init": "cp -R ./node_modules/react-native-google-signin/ios/GoogleSdk ./ios/nomgoods.xcodeproj/",
+    "react-native-init": "react-native link"
   },
   "dependencies": {
     "color": "^1.0.3",
     "native-base": "^0.5.18",
     "react": "15.4.1",
     "react-native": "0.39.2",
+    "react-native-google-signin": "^0.8.1",
     "react-native-swipeout": "https://github.com/dancormier/react-native-swipeout.git",
     "react-native-vector-icons": "^3.0.0",
     "react-redux": "^5.0.1",

@@ -1,9 +1,19 @@
-export const BACK_BUTTON = 'BACK_BUTTON';
-export const TOGGLE_ITEM_COMPLETED = 'TOGGLE_ITEM_COMPLETED';
-export const SELECT_LIST = 'SELECT_LIST';
-export const ADD_NEW_LIST = 'ADD_NEW_LIST';
-export const SAVE_NEW_LIST = 'SAVE_NEW_LIST';
-export const DELETE_LIST = 'DELETE_LIST';
-export const ADD_NEW_ITEM = 'ADD_NEW_ITEM';
-export const SAVE_NEW_ITEM = 'SAVE_NEW_ITEM';
-export const DELETE_ITEM = 'DELETE_ITEM';
+export const BACK_BUTTON = 'BackButton';
+export const TOGGLE_ITEM_COMPLETED = 'ToggleItemCompleted';
+export const SELECT_LIST = 'SelectList';
+export const ADD_NEW_LIST = 'AddNewList';
+export const SAVE_NEW_LIST = 'SaveNewList';
+export const DELETE_LIST = 'DeleteList';
+export const ADD_NEW_ITEM = 'AddNewItem';
+export const SAVE_NEW_ITEM = 'SaveNewItem';
+export const DELETE_ITEM = 'DeleteItem';
+export const SHOW_MENU = 'ShowMenu';
+export const LOGOUT = 'Logout';
+
+// AWS
+
+// Google Auth
+export const INIT_GOOGLE = 'InitGoogle';
+export const LOGIN_GOOGLE = 'LoginGoogle';
+export const LOGOUT_GOOGLE = 'LogoutGoogle';
+export const SET_GOOGLE_USER = 'SetGoogleUser';

@@ -8,8 +8,9 @@ import {
     View
 } from 'native-base'
 
-import Navigator from '../navigation/navigator'
-import * as navStates from '../navigation/states'
+import Navigator from '../state/navigator'
+import * as navStates from '../state/nav-states'
+import Login from './Login'
 
 import icon from './icon'
 import theme from '../themes'
@@ -34,35 +35,48 @@ export default class App extends Component {
         super(props)
     }
 
+    componentDidMount() {
+        this.props.onInitGoogle();
+    }
+
     render() {
-        const lists = this.props.state.lists;
-        const navigator = new Navigator(this.props.state.nav);
-        const callbacks = {
-            onBackButton: this.props.onBackButton,
-            onToggleItemCompleted: this.props.onToggleItemCompleted,
-            onSelectList: this.props.onSelectList,
-            onAddNewList: this.props.onAddNewList,
-            onSaveNewList: this.props.onSaveNewList,
-            onDeleteList: this.props.onDeleteList,            
-            onAddNewItem: this.props.onAddNewItem,
-            onSaveNewItem: this.props.onSaveNewItem,
-            onDeleteItem: this.props.onDeleteItem
+        const state = this.props.state.data;
+        const metadata = this.props.state.metadata;
+        const navigator = new Navigator(this.props.state.metadata.nav);
+        const callbacks = Object.keys(this.props)
+                                .filter(key => typeof this.props[key] === 'function' && key.indexOf("on") === 0)
+                                .map(key => ({ key, value: this.props[key] }))
+                                .reduce((prev, cur) => { prev[cur.key] = cur.value; return prev; }, {});
+
+        if (navigator.state() === navStates.NOT_AUTHENTICATED) {
+            return (
+                <Container theme={theme} style={{ backgroundColor: theme.defaultBackgroundColor }}>
+                <Header>
+                    <Title>Nom Goods - Login</Title>
+                </Header>
+                <Content style={styles.container}>
+                    <View style={{ flex: 1, alignSelf: 'stretch', justifyContent: 'center', padding: 20 }}>
+                        <Login onLoginGoogle={callbacks.onLoginGoogle} />
+                    </View>
+                </Content>
+            </Container>
+            )
         }
 
         return (
             <Container theme={theme} style={{ backgroundColor: theme.defaultBackgroundColor }}>
                 <Header>
-                    { renderBackButton(navigator, lists, callbacks) }
+                    { renderBackButton(navigator, state, metadata, callbacks) }
 
-                    { renderMenuButton(navigator, lists, callbacks) }
+                    { renderMenuButton(navigator, state, metadata, callbacks) }
 
-                    { renderTitle(navigator, lists, callbacks) }
+                    { renderTitle(navigator, state, metadata, callbacks) }
 
-                    { renderAddButton(navigator, lists, callbacks) }
+                    { renderAddButton(navigator, state, metadata, metadata, callbacks) }
                 </Header>
                 <Content style={styles.container}>
                     <View style={{ flex: 1, alignSelf: 'stretch', justifyContent: 'center', padding: 20 }}>
-                        { renderView(navigator, lists, callbacks) }
+                        { renderView(navigator, state, metadata, callbacks) }
                     </View>
                 </Content>
             </Container>

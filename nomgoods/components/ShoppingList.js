@@ -17,13 +17,6 @@ export default class ShoppingList extends Component {
         const callback = this.props.onToggleItemCompleted;
         const deleteCallback = this.props.onDeleteItem;
 
-        const listItems = this.props.items.map(x => (
-            <ListItem onPress={() => callback(listId, x.key)}>
-                <CheckBox checked={x.completed} onPress={() => callback(listId, x.key)} />
-                <Text>{x.name}</Text>
-            </ListItem>
-        ));
-
         return (
             <List dataArray={this.props.items}
                   renderRow={(x) =>

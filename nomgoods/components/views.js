@@ -3,28 +3,31 @@ import ShoppingLists from './ShoppingLists'
 import ShoppingList from './ShoppingList'
 import NewItemForm from './NewItemForm'
 import NewListForm from './NewListForm'
-import * as navStates from '../navigation/states'
+import Menu from './Menu'
+import * as navStates from '../state/nav-states'
 
-function renderShoppingLists(navigator, lists, callbacks) {
+const renderers = {};
+
+renderers[navStates.VIEW_LISTS] = function(navigator, state, metadata, callbacks) {
     return (
         <ShoppingLists
-            lists={lists}
+            lists={state.lists}
             onSelectList={callbacks.onSelectList}
             onDeleteList={callbacks.onDeleteList} />
     )
 }
 
-function renderAddList(navigator, lists, callbacks) {
+renderers[navStates.ADD_LIST] = function(navigator, state, metadata, callbacks) {
     return (
         <NewListForm
-            lists={lists}
+            lists={state.lists}
             onSaveNewList={callbacks.onSaveNewList} />
     )
 }
 
-function renderShoppingList(navigator, lists, callbacks) {
+renderers[navStates.EDIT_LIST] = function(navigator, state, metadata, callbacks) {
     const listId = navigator.parameter("listId");
-    const list = lists.find(x => x.key === listId);
+    const list = state.lists.find(x => x.key === listId);
 
     return (
         <ShoppingList 
@@ -35,9 +38,9 @@ function renderShoppingList(navigator, lists, callbacks) {
     )
 }
 
-function renderAddItem(navigator, lists, callbacks) {
+renderers[navStates.ADD_ITEM] = function(navigator, state, metadata, callbacks) {
     const listId = navigator.parameter("listId");
-    const list = lists.find(x => x.key === listId);
+    const list = state.lists.find(x => x.key === listId);
 
     return (
         <NewItemForm 
@@ -47,21 +50,20 @@ function renderAddItem(navigator, lists, callbacks) {
     )
 }
 
-export function renderView(navigator, lists, callbacks) {
-    switch(navigator.state()) {
-        case navStates.VIEW_LISTS:
-            return renderShoppingLists(navigator, lists, callbacks);
+renderers[navStates.MENU] = function(navigator, state, metadata, callbacks) {
+    return (
+        <Menu user={metadata.user}
+              onLoginGoogle={callbacks.onLoginGoogle}
+              onLogoutGoogle={callbacks.onLogoutGoogle} />
+    )
+}
 
-        case navStates.ADD_LIST:
-            return renderAddList(navigator, lists, callbacks);
+export function renderView(navigator, state, metadata, callbacks) {
+    const func = renderers[navigator.state()];
 
-        case navStates.EDIT_LIST:
-            return renderShoppingList(navigator, lists, callbacks);
-        
-        case navStates.ADD_ITEM:
-            return renderAddItem(navigator, lists, callbacks);
-
-        default:
-            return null;
+    if (func && navigator.state()) {
+        return func(navigator, state, metadata, callbacks);
     }
+
+    return null;
 }

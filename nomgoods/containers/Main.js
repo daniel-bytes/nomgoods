@@ -12,6 +12,7 @@ const createStoreWithMiddleware = applyMiddleware(thunk)(createStore);
 const reducer = combineReducers(reducers);
 const store = createStoreWithMiddleware(reducer, undefined, autoRehydrate());
 
+//persistStore(store, { storage: AsyncStorage }).purge();
 persistStore(store, { storage: AsyncStorage });
 
 export default class Main extends Component {

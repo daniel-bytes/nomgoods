@@ -1,59 +1,67 @@
 import * as types from '../actions/actionTypes'
-import * as navStates from '../navigation/states'
-import Navigator from '../navigation/navigator'
+import * as navStates from '../state/nav-states'
+import ApplicationState from '../state/application-state'
+import { GoogleSignin } from 'react-native-google-signin'
+import { AwsCognito } from '../components/aws-cognito';
 
 const initialState = {
-    lists: [{
-        key: '1',
-        name: 'Duane Reade',
-        createdOn: new Date(),
-        createdBy: {
-            key: 'u1',
-            name: 'Daniel Battaglia'
+    data: {
+        lists: [{
+            key: '1',
+            name: 'Duane Reade',
+            createdOn: new Date(),
+            createdBy: {
+                key: 'u1',
+                name: 'Daniel Battaglia'
+            },
+            items: [
+                {
+                    key: 'a',
+                    name: 'Toothpaste',
+                    completed: false
+                },
+                {
+                    key: 'b',
+                    name: 'Coffee',
+                    completed: false
+                },
+                {
+                    key: 'c',
+                    name: 'Soap',
+                    completed: true
+                }
+            ]
+        }],
+    },
+    metadata: {
+        user: null,
+        nav: [{
+            state: navStates.VIEW_LISTS,
+            parameters: {}            
         },
-        items: [
-            {
-                key: 'a',
-                name: 'Toothpaste',
-                completed: false
-            },
-            {
-                key: 'b',
-                name: 'Coffee',
-                completed: false
-            },
-            {
-                key: 'c',
-                name: 'Soap',
-                completed: true
-            }
-        ]
-    }],
-    nav: [{
-        state: navStates.VIEW_LISTS,
-        parameters: {}
-    }]
+        {
+            state: navStates.NOT_AUTHENTICATED,
+            parameters: {}
+        }]
+    }
 }
 
-function handleBackButton(prevState, action) {
-    const results = { ...prevState }
+const app = {};
 
-    new Navigator(results.nav).backButton();
+app[types.BACK_BUTTON] = function(state, action) {
+    state.createNavigator().backButton();
 
-    return results;
+    return state;
 }
 
-function handleSelectList(prevState, action) {
-    const results = { ...prevState }
+app[types.SELECT_LIST] = function(state, action) {
+    state.createNavigator().selectList(action.listId);
 
-    new Navigator(results.nav).selectList(action.listId);
-
-    return results;
+    return state;
 }
 
-function handleToggleCompleted(prevState, action) {
-    const results = { ...prevState };
-    const list = results.lists.find(x => x.key === action.listId);
+app[types.TOGGLE_ITEM_COMPLETED] = function(state, action) {
+    const list = state.data().lists.find(x => x.key === action.listId);
     
     if (list) {
         const item = list.items.find(x => x.key === action.itemId);
@@ -63,21 +71,17 @@ function handleToggleCompleted(prevState, action) {
         }
     }
 
-    return results;
+    return state;
 }
 
-function handleNewList(prevState, action) {
-    const results = { ...prevState }
-    
-    new Navigator(results.nav).addButton();
+app[types.ADD_NEW_LIST] = function(state, action) {
+    state.createNavigator().addButton();
 
-    return results;
+    return state;
 }
 
-function handleNewListSave(prevState, action) {
-    const results = { ...prevState }
-
-    results.lists.push({
+app[types.SAVE_NEW_LIST] = function(state, action) {
+    state.data().lists.push({
         key: String(Math.random()),
         name: action.name,
         createdOn: new Date(),
@@ -88,35 +92,32 @@ function handleNewListSave(prevState, action) {
         items: []
     });
     
-    new Navigator(results.nav).saveButton();
+    state.createNavigator().saveButton();
 
-    return results;
+    return state;
 }
 
-function handleDeleteList(prevState, action) {
-    const results = { ...prevState };
-    
-    for (let i = 0; i < results.lists.length; i++) {
-        if (results.lists[i].key === action.listId) {
-            results.lists.splice(i, 1);
+app[types.DELETE_LIST] = function(state, action) {
+    const lists = state.data().lists;
+
+    for (let i = 0; i < lists.length; i++) {
+        if (lists[i].key === action.listId) {
+            lists.splice(i, 1);
             break;
         }
     }
 
-    return results;
+    return state;
 }
 
-function handleNewItem(prevState, action) {
-    const results = { ...prevState }
-    
-    new Navigator(results.nav).addButton();
+app[types.ADD_NEW_ITEM] = function(state, action) {
+    state.createNavigator().addButton();
 
-    return results;
+    return state;
 }
 
-function handleNewItemSave(prevState, action) {
-    const results = { ...prevState }
-    const list = results.lists.find(x => x.key === action.listId);
+app[types.SAVE_NEW_ITEM] = function(state, action) {
+    const list = state.data().lists.find(x => x.key === action.listId);
 
     list.items.push({
         key: String(Math.random()),
@@ -124,14 +125,13 @@ function handleNewItemSave(prevState, action) {
         completed: false
     });
     
-    new Navigator(results.nav).saveButton();
+    state.createNavigator().saveButton();
 
-    return results;
+    return state;
 }
 
-function handleDeleteItem(prevState, action) {
-    const results = { ...prevState };
-    const list = results.lists.find(x => x.key === action.listId);
+app[types.DELETE_ITEM] = function(state, action) {
+    const list = state.data().lists.find(x => x.key === action.listId);
 
     if (list) {
         for (let i = 0; i < list.items.length; i++) {
@@ -142,39 +142,50 @@ function handleDeleteItem(prevState, action) {
         }
     }
 
-    return results;
+    return state;
+}
+
+app[types.SHOW_MENU] = function(state, action) {
+    state.createNavigator().menuButton();
+
+    return state;
+}
+
+app[types.LOGOUT] = function(state, action) {
+    state.setUser(null);
+    AwsCognito.signOut();
+
+    state.createNavigator().login();
+    return state;
+}
+
+app[types.SET_GOOGLE_USER] = function(state, action) {
+    state.setUser({
+        name: action.user.name,
+        firstName: action.user.givenName,
+        lastName: action.user.familyName,
+        email: action.user.email,
+        token: action.user.idToken,
+        //token: action.user.securityToken,
+        provider: {
+            type: 'google',
+            data: action.user
+        }
+    });
+
+    state.createNavigator().backButton();
+    
+    return state;
 }
 
 export default function shoppingListApp(state = initialState, action = {}) {
-    switch(action.type) {
-        case types.BACK_BUTTON:
-            return handleBackButton(state, action);
+    const method = app[action.type];
 
-        case types.SELECT_LIST:
-            return handleSelectList(state, action);
-
-        case types.TOGGLE_ITEM_COMPLETED:
-            return handleToggleCompleted(state, action);
-
-        case types.ADD_NEW_LIST:
-            return handleNewList(state, action);
-
-        case types.SAVE_NEW_LIST:
-            return handleNewListSave(state, action);
-
-        case types.DELETE_LIST:
-            return handleDeleteList(state, action);
-
-        case types.ADD_NEW_ITEM:
-            return handleNewItem(state, action);
-
-        case types.SAVE_NEW_ITEM:
-            return handleNewItemSave(state, action);
-
-        case types.DELETE_ITEM:
-            return handleDeleteItem(state, action);
-
-        default:
-            return state;
+    if (method) {
+        const appState = new ApplicationState(state);
+        const result = method(appState, action);
+        return result instanceof ApplicationState ? result.state() : appState.state();
     }
+    
+    return state;
 }
