@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { bindingActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import ShoppingListApp from '../components/ShoppingListApp'
-import actions from '../actions/shoppingListActions'
+import actions from '../actions'
 
 const mapStateToProps = (state) => {
     return {

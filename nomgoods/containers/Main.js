@@ -11,9 +11,8 @@ import App from './App'
 const createStoreWithMiddleware = applyMiddleware(thunk)(createStore);
 const reducer = combineReducers(reducers);
 const store = createStoreWithMiddleware(reducer, undefined, autoRehydrate());
-
-//persistStore(store, { storage: AsyncStorage }).purge();
-persistStore(store, { storage: AsyncStorage });
+const persistedStore = persistStore(store, { storage: AsyncStorage, keyPrefix: 'nomgoods:' });
+//persistedStore.purge();
 
 export default class Main extends Component {
     render() {

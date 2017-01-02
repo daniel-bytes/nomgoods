@@ -54,7 +54,7 @@ export function renderTitle(navigator, state, metadata, callbacks) {
 
 export function renderAddButton(navigator, state, metadata, callbacks) {
     if (navigator.allowAddButton()) {
-        const callback = navigator.state() === navStates.ADD_LIST 
+        const callback = navigator.state() === navStates.VIEW_LISTS
                             ? callbacks.onAddNewList 
                             : callbacks.onAddNewItem;
 

@@ -12,7 +12,36 @@
 @synthesize provider;
 @synthesize credentialsProvider;
 @synthesize configuration;
-@synthesize signedIn;
+@synthesize datasets;
+@synthesize bridge = _bridge;
+
+- (AWSCognitoDataset*) getDataset : (NSString*)name {
+  AWSCognitoDataset *dataset = self.datasets[name];
+  
+  if (dataset == nil) {
+    AWSCognito *syncClient = [AWSCognito defaultCognito];
+    dataset = [syncClient openOrCreateDataset:name];
+    [self.datasets setObject:dataset forKey:name];
+  }
+  
+  return dataset;
+}
+
+
+- (void) handleAWSCognitoDidChangeLocalValueFromRemoteNotification:(NSNotification *)notification {
+  NSLog(@"remote change callback: %@", notification.userInfo);
+  
+  NSString *datasetName = notification.userInfo[@"dataset"];
+  NSArray *keys = notification.userInfo[@"keys"];
+  
+  if (self.datasets[datasetName] != nil) {
+    [self sendEventWithName:@"onChange" body:keys];
+  }
+}
+   
+ - (NSArray<NSString *> *)supportedEvents {
+   return @[@"onChange"];
+ }
 
 RCT_EXPORT_MODULE();
 
@@ -23,7 +52,6 @@ RCT_EXPORT_METHOD(signIn
                   : (NSInteger )region
                   : (RCTPromiseResolveBlock)resolve
                   : (RCTPromiseRejectBlock)reject) {
-  //NSLog(@"initCredentialsProvider identityPoolId:'%@' tokenType:'%@' token:'%@' region:%li", identityPoolId, tokenType, token, (long)region);
   @try {
     self.provider =
       [[CognitoTokenProviderManager alloc] initWithTokens:@{tokenType : token }];
@@ -37,15 +65,35 @@ RCT_EXPORT_METHOD(signIn
                                        credentialsProvider:credentialsProvider];
     
     AWSServiceManager.defaultServiceManager.defaultServiceConfiguration = self.configuration;
-
-    NSLog(@"Cognito: Signed in");
-    self.signedIn = TRUE;
     
-    resolve(@[ [NSNull null] ]);
+    self.datasets = [NSMutableDictionary dictionary];
+    
+    [[NSNotificationCenter defaultCenter]
+     removeObserver:self
+     name:AWSCognitoDidChangeLocalValueFromRemoteNotification
+     object:nil];
+
+    [[NSNotificationCenter defaultCenter]
+     addObserver:self
+     selector:@selector(handleAWSCognitoDidChangeLocalValueFromRemoteNotification:)
+     name:AWSCognitoDidChangeLocalValueFromRemoteNotification
+     object:nil];
+
+    [[self.credentialsProvider getIdentityId] continueWithBlock:^id(AWSTask<NSString*> *task) {
+      if (task.error) {
+        NSLog(@"Cognito:signIn.getIdentityId failed - error %@", task.error);
+        
+        reject([NSString stringWithFormat:@"%ld", task.error.code], task.error.description, task.error);
+      }
+      else {
+        NSLog(@"Cognito: Signed in");
+        
+        resolve(@[ task.result ]);
+      }
+      return nil;
+    }];
   }
   @catch(NSException *exc) {
-    self.signedIn = FALSE;
-    
     NSLog(@"Cognito: signIn failure: %@", exc);
     reject(exc.name, exc.description, [NSError errorWithDomain:tokenType
                                                           code:1
@@ -60,114 +108,103 @@ RCT_EXPORT_METHOD(signOut
     [self.credentialsProvider clearCredentials];
     NSLog(@"Cognito: Signed out");
   }
-  self.signedIn = FALSE;
   
   resolve(@[ [NSNull null] ]);
 }
 
-RCT_EXPORT_METHOD(isSignedIn
-                  : (RCTPromiseResolveBlock)resolve
-                  : (RCTPromiseRejectBlock)reject) {
-  NSLog(@"Cognito: isSignedIn %i", self.signedIn);
-  resolve(@[ [NSNumber numberWithBool:self.signedIn] ]);
-}
-
-RCT_EXPORT_METHOD(getItem
+RCT_EXPORT_METHOD(get
                   : (NSString *)datasetName
-                  : (NSString *)key
                   : (RCTPromiseResolveBlock)resolve
                   : (RCTPromiseRejectBlock)reject) {
-  NSLog(@"Cognito: getItem for dataset %@, key %@", datasetName, key);
+  NSLog(@"Cognito:get - dataset %@ - begin", datasetName);
   
   @try {
-    AWSCognito *syncClient = [AWSCognito defaultCognito];
-    AWSCognitoDataset *dataset = [syncClient openOrCreateDataset:datasetName];
-    NSString *value = [dataset stringForKey:key];
+    AWSCognitoDataset *dataset = [self getDataset:datasetName];
+    NSDictionary *allValues = [dataset getAll];
     
-    resolve(@[ value ]);
+    /*
+    NSMutableDictionary *allValues = [NSMutableDictionary dictionary];
+    NSArray *allRecords = [dataset getAllRecords];
+    
+    for (AWSCognitoRecord* record in allRecords) {
+      NSString *name = record.recordId;
+      NSString *value = [record.data string];
+      BOOL isdeleted = [record isDeleted];
+      
+      NSLog(@"%@ - %@ : Deleted = %@", name, value, isdeleted ? @"true" : @"false");
+      
+      if (isdeleted) {
+        NSLog(@"%@ deleted, skipping", name);
+        continue;
+      }
+      
+      [allValues setObject:value forKey:name];
+    }
+    */
+    
+    resolve(@[ allValues ]);
   }
   @catch(NSException *exc) {
-    NSLog(@"Cognito: getItem failure: %@", exc);
+    NSLog(@"Cognito:get - dataset %@ - exception %@", datasetName, exc);
     reject(exc.name, exc.description, [NSError errorWithDomain:datasetName
                                                           code:1
                                                       userInfo:@{}]);
   }
 }
 
-RCT_EXPORT_METHOD(setItem
-                  : (NSString *)datasetName
-                  : (NSString *)key
-                  : (NSString *)value
-                  : (RCTPromiseResolveBlock)resolve
-                  : (RCTPromiseRejectBlock)reject) {
-  NSLog(@"Cognito: setItem for dataset %@, key %@", datasetName, key);
-  
-  @try {
-    AWSCognito *syncClient = [AWSCognito defaultCognito];
-    AWSCognitoDataset *dataset = [syncClient openOrCreateDataset:datasetName];
-    [dataset setString:value forKey:key];
-    
-    resolve(@[ value ]);
-  }
-  @catch(NSException *exc) {
-    NSLog(@"Cognito: setItem failure: %@", exc);
-    reject(exc.name, exc.description, [NSError errorWithDomain:datasetName
-                                                          code:1
-                                                      userInfo:@{}]);
-  }
-}
-
-RCT_EXPORT_METHOD(removeItem
-                  : (NSString *)datasetName
-                  : (NSString *)key
-                  : (RCTPromiseResolveBlock)resolve
-                  : (RCTPromiseRejectBlock)reject) {
-  @try {
-    NSLog(@"Cognito: removeItem for dataset %@, key %@", datasetName, key);
-    
-    AWSCognito *syncClient = [AWSCognito defaultCognito];
-    AWSCognitoDataset *dataset = [syncClient openOrCreateDataset:datasetName];
-    [dataset removeObjectForKey:key];
-    
-    resolve(@[ [NSNull null] ]);
-  }
-  @catch(NSException *exc) {
-    NSLog(@"Cognito: removeItem failure: %@", exc);
-    reject(exc.name, exc.description, [NSError errorWithDomain:datasetName
-                                                          code:1
-                                                      userInfo:@{}]);
-  }
-}
 
 RCT_EXPORT_METHOD(synchronize
                   : (NSString *)datasetName
+                  : (NSArray *)changes
                   : (RCTPromiseResolveBlock)resolve
                   : (RCTPromiseRejectBlock)reject) {
-  NSLog(@"Cognito: synchronize for dataset %@", datasetName);
+  NSLog(@"Cognito:synchronize - dataset %@ - begin", datasetName);
   
   @try {
-    if (self.signedIn) {
-      AWSCognito *syncClient = [AWSCognito defaultCognito];
-      AWSCognitoDataset *dataset = [syncClient openOrCreateDataset:datasetName];
-
-      [[dataset synchronize] continueWithBlock:^id(AWSTask *task) {
-        if (task.error) {
-          NSLog(@"%@", task.error);
-          reject([NSString stringWithFormat:@"%ld", task.error.code], task.error.description, task.error);
+    AWSCognitoDataset *dataset = [self getDataset:datasetName];
+    
+    // Set changes
+    if (changes != nil) {
+      NSArray *existingKeys = [[dataset getAll] allKeys];
+      
+      for (id change in changes) {
+        NSDictionary *obj = (NSDictionary*)change;
+        NSString *type = (NSString*)obj[@"type"];
+        NSString *key = (NSString*)obj[@"key"];
+        
+        if ( [type isEqualToString:@"remove"] ) {
+          // Remove all existing keys that a prefixed with the input key
+          for (id existingKey in existingKeys) {
+            NSString *existingKeyString = (NSString*)existingKey;
+            
+            if ([existingKeyString rangeOfString:key].location == 0) {
+              NSLog(@"remove key %@", existingKeyString);
+              [dataset removeObjectForKey:existingKeyString];
+            }
+          }
         }
         else {
-          resolve(@[ [NSNull null] ]);
+          NSString *value = (NSString*)obj[@"value"];
+          NSLog(@"set key %@", key);
+          [dataset setString:value forKey:key];
         }
-        return nil;
-      }];
+      }
     }
-    else {
-      NSLog(@"Not signed in, skipping");
-      resolve(@[ [NSNull null] ]);
-    }
+    
+    // Sync to AWS
+    [[dataset synchronizeOnConnectivity] continueWithBlock:^id(AWSTask *task) {
+      if (task.error) {
+        NSLog(@"Cognito:synchronize:synchronizeOnConnectivity - dataset %@ - error %@", datasetName, task.error);
+        reject([NSString stringWithFormat:@"%ld", task.error.code], task.error.description, task.error);
+      }
+      else {
+        resolve(@[ [NSNull null] ]);
+      }
+      return nil;
+    }];
   }
   @catch(NSException *exc) {
-    NSLog(@"Cognito: synchronize failure: %@", exc);
+    NSLog(@"Cognito:synchronize - dataset %@ - exception %@", datasetName, exc);
     reject(exc.name, exc.description, [NSError errorWithDomain:datasetName
                                                           code:1
                                                       userInfo:@{}]);

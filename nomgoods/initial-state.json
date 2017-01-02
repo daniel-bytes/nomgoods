@@ -1,0 +1,32 @@
+{
+    "data": {
+        "lists": [{
+            "key": "HJMWjqSHe",
+            "name": "Duane Reade",
+            "items": [
+                {
+                    "key": "rkVbs9BHx",
+                    "name": "Toothpaste",
+                    "completed": false
+                },
+                {
+                    "key": "B1cfo5HBg",
+                    "name": "Coffee",
+                    "completed": false
+                },
+                {
+                    "key": "HJMQiqBrg",
+                    "name": "Soap",
+                    "completed": true
+                }
+            ]
+        }]
+    },
+    "metadata": {
+        "user": null,
+        "nav": [{
+            "state": "NOT_AUTHENTICATED",
+            "parameters": {}            
+        }]
+    }
+}

@@ -7,6 +7,6 @@
 @property (nonatomic, copy) NSDictionary<NSString*, NSString*> * _Nullable tokens;
 
 - (nonnull instancetype)initWithTokens:(NSDictionary<NSString*, NSString*> * _Nonnull)inputTokens;
-- (AWSTask<NSDictionary<NSString*,NSString*> *> * )logins;
+- (AWSTask<NSDictionary<NSString*,NSString*> *> * _Nonnull )logins;
 
 @end

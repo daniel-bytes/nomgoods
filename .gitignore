@@ -49,3 +49,4 @@ jspm_packages
 secrets.json
 GoogleService-info.plist
 
+.DS_Store

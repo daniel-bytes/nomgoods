@@ -47,7 +47,7 @@ export default class App extends Component {
                                 .filter(key => typeof this.props[key] === 'function' && key.indexOf("on") === 0)
                                 .map(key => ({ key, value: this.props[key] }))
                                 .reduce((prev, cur) => { prev[cur.key] = cur.value; return prev; }, {});
-
+        
         if (navigator.state() === navStates.NOT_AUTHENTICATED) {
             return (
                 <Container theme={theme} style={{ backgroundColor: theme.defaultBackgroundColor }}>
@@ -72,7 +72,7 @@ export default class App extends Component {
 
                     { renderTitle(navigator, state, metadata, callbacks) }
 
-                    { renderAddButton(navigator, state, metadata, metadata, callbacks) }
+                    { renderAddButton(navigator, state, metadata, callbacks) }
                 </Header>
                 <Content style={styles.container}>
                     <View style={{ flex: 1, alignSelf: 'stretch', justifyContent: 'center', padding: 20 }}>

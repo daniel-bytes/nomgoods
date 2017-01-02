@@ -6,7 +6,6 @@
     "ios": "node node_modules/react-native/local-cli/cli.js run-ios",
     "start": "node node_modules/react-native/local-cli/cli.js start",
     "test": "jest",
-
     "configure-xcode": "sudo xcode-select -s /Applications/XCode.app",
     "fonts-init": "cp -R ./node_modules/react-native-vector-icons/Fonts ./ios/nomgoods.xcodeproj/",
     "google-signin-init": "cp -R ./node_modules/react-native-google-signin/ios/GoogleSdk ./ios/nomgoods.xcodeproj/",
@@ -23,7 +22,8 @@
     "react-redux": "^5.0.1",
     "redux": "^3.6.0",
     "redux-persist": "^4.0.0-beta2",
-    "redux-thunk": "^2.1.0"
+    "redux-thunk": "^2.1.0",
+    "shortid": "^2.2.6"
   },
   "devDependencies": {
     "babel-jest": "18.0.0",
